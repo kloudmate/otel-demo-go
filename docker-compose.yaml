@@ -1,0 +1,31 @@
+services:
+  gin-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gin-app
+    ports:
+      - "8080:8080"
+    networks:
+      - otel-network
+
+  obi:
+    image: docker.io/otel/ebpf-instrument:main
+    container_name: obi-agent
+    pid: "host"
+    privileged: true
+    environment:
+      - OTEL_EBPF_OPEN_PORT=8080
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_SERVICE_NAME=gin-ebpf-demo
+      - OTEL_LOG_LEVEL=debug
+      - OTEL_EBPF_TRACE_PRINTER=text
+    depends_on:
+      - gin-app
+    networks:
+      - otel-network
+
+networks:
+  otel-network:
+    driver: bridge
