@@ -8,7 +8,7 @@ This demo runs a Go service instrumented with OpenTelemetry Auto SDK using Docke
 
 1. **Create a `.env` file** (or copy from `.env.example`) with the following content:
 ```env
-OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.dev:4318
+OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318
 OTEL_EXPORTER_OTLP_TRACES_HEADERS="Authorization=<PRIVATE_KEY_FROM_KLOUDMATE>"
 OTEL_SERVICE_NAME=golang-instrumentation-app
 OTEL_GO_AUTO_TARGET_EXE=/app/service
