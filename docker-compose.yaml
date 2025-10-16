@@ -1,0 +1,38 @@
+services:
+  gin-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gin-app
+    ports:
+      - "8080:8080"
+    networks:
+      - otel-network
+    volumes:
+      - gin-app-data:/app 
+
+  go-auto:
+    image: otel/autoinstrumentation-go:latest
+    container_name: go-auto
+    privileged: true
+    pid: "host"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_HEADERS=${OTEL_EXPORTER_OTLP_TRACES_HEADERS}
+      - OTEL_GO_AUTO_TARGET_EXE=${OTEL_GO_AUTO_TARGET_EXE}
+      - OTEL_SERVICE_NAME=${OTEL_SERVICE_NAME}
+      - OTEL_PROPAGATORS=${OTEL_PROPAGATORS}
+    volumes:
+      - gin-app-data:/app
+      - /proc:/host/proc
+    depends_on:
+      - gin-app
+    networks:
+      - otel-network
+
+networks:
+  otel-network:
+    driver: bridge
+
+volumes:
+  gin-app-data:
