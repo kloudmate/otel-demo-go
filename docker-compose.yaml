@@ -8,19 +8,23 @@ services:
       - "8080:8080"
     networks:
       - otel-network
+    volumes:
+      - gin-app-data:/app 
 
-  obi:
-    image: docker.io/otel/ebpf-instrument:main
-    container_name: obi-agent
-    pid: "host"
+  go-auto:
+    image: otel/autoinstrumentation-go:latest
+    container_name: go-auto
     privileged: true
+    pid: "host"
     environment:
-      - OTEL_EBPF_OPEN_PORT=8080
       - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
-      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-      - OTEL_SERVICE_NAME=gin-ebpf-demo
-      - OTEL_LOG_LEVEL=debug
-      - OTEL_EBPF_TRACE_PRINTER=text
+      - OTEL_EXPORTER_OTLP_HEADERS=${OTEL_EXPORTER_OTLP_TRACES_HEADERS}
+      - OTEL_GO_AUTO_TARGET_EXE=${OTEL_GO_AUTO_TARGET_EXE}
+      - OTEL_SERVICE_NAME=${OTEL_SERVICE_NAME}
+      - OTEL_PROPAGATORS=${OTEL_PROPAGATORS}
+    volumes:
+      - gin-app-data:/app
+      - /proc:/host/proc
     depends_on:
       - gin-app
     networks:
@@ -29,3 +33,6 @@ services:
 networks:
   otel-network:
     driver: bridge
+
+volumes:
+  gin-app-data:
